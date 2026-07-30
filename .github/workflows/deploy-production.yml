@@ -1,0 +1,73 @@
+name: Deploy EdgeEver Production
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/api/**"
+      - "apps/web/**"
+      - "packages/**"
+      - "migrations/**"
+      - "wrangler.toml"
+      - "package.json"
+      - "bun.lock"
+      - "tsconfig.json"
+      - "tailwind.config.ts"
+      - "vite.config.*"
+      - ".github/workflows/deploy-production.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: edgeever-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      EDGE_EVER_WORKER_NAME: edgeever
+      EDGE_EVER_D1_DATABASE_NAME: edgeever
+      EDGE_EVER_D1_DATABASE_ID: a3bf3231-717d-4f5e-8d36-5733b89bf542
+      EDGE_EVER_R2_BUCKET_NAME: edgeever-resources
+      EDGE_EVER_R2_PREVIEW_BUCKET_NAME: edgeever-resources-preview
+      EDGE_EVER_AUTH_USERNAME: admin
+      EDGE_EVER_SESSION_TTL_DAYS: 400
+      EDGE_EVER_DEPLOYMENT_TRIGGER: ${{ github.event_name == 'push' && 'main_push' || 'manual' }}
+      EDGE_EVER_DEPLOYMENT_METHOD: github_actions
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build:cloudflare
+
+      - name: Apply D1 migrations
+        run: bun run db:migrate:remote
+
+      - name: Deploy Worker
+        run: bun run deploy:worker
+
+      - name: Verify deployment
+        run: |
+          echo "Deployed to https://edgeever.minos-zou.workers.dev"
+          sleep 5
+          curl --fail --silent --show-error --location --max-time 20 "https://edgeever.minos-zou.workers.dev/api/health"

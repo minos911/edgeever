@@ -40,6 +40,7 @@ jobs:
       EDGE_EVER_R2_PREVIEW_BUCKET_NAME: edgeever-resources-preview
       EDGE_EVER_AUTH_USERNAME: admin
       EDGE_EVER_SESSION_TTL_DAYS: 400
+      EDGE_EVER_AUTH_PASSWORD: ${{ secrets.EDGE_EVER_AUTH_PASSWORD }}
       EDGE_EVER_DEPLOYMENT_TRIGGER: ${{ github.event_name == 'push' && 'main_push' || 'manual' }}
       EDGE_EVER_DEPLOYMENT_METHOD: github_actions
 

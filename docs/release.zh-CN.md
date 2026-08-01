@@ -27,6 +27,9 @@ bun run release -- \
 
 如果一个 Release 包含多项改动，请成对重复传入 `--change-en` 和
 `--change-zh`。跟踪 Issue 需要多个 Label 时，可以重复传入 `--label`。
+公开 Release 说明只包含用户可感知的变化、影响以及必要的升级或迁移提醒。
+类型检查、构建命令、签名、公证和资产审计等技术细节保留在 GitHub Actions
+与关联跟踪 Issue 中，不再重复写入公开说明。
 
 `--bump` 为必填项，必须根据整个 Release 对用户和兼容性的影响选择：
 
@@ -53,6 +56,8 @@ GitHub 状态。`--skip-install` 会跳过发布后的 DMG 安装，仅适用于
 根版本和 GitHub tag 表示整体产品 Release。只有原生运行时需要重建时，才更新
 对应的原生展示版本。Android `versionCode` 和 iOS Build Number 继续作为独立、
 严格递增的商店构建标识。
+
+正式 Tag 及其对应的 GitHub Release 标题均统一使用 `vX.Y.Z`。
 
 复用已验证的 DMG 或 APK 时，保留其原始文件名和原生版本。每个正式 Release
 都同时包含独立的 macOS arm64 与 x64 DMG，以及按架构区分的更新 ZIP。桌面端

@@ -30,6 +30,10 @@ bun run release -- \
 
 Repeat `--change-en` and `--change-zh` in matching pairs when a Release contains
 multiple changes. Repeat `--label` when the tracking Issue needs multiple labels.
+Public Release notes contain only user-visible changes, their impact, and any
+required upgrade or migration guidance. Type checks, build commands, signing,
+notarization, and asset-audit details remain in GitHub Actions and the linked
+tracking Issue instead of being repeated in the public notes.
 
 `--bump` is required and must be selected from the user and compatibility impact
 of the complete Release:
@@ -64,6 +68,8 @@ The root version and GitHub tag identify the overall product Release. Native
 marketing versions change only when that native runtime is rebuilt. Android
 `versionCode` and iOS build numbers remain independent, monotonically increasing
 store build identifiers.
+
+Stable tags and their GitHub Release titles both use `vX.Y.Z`.
 
 When verified DMGs or an APK are reused, their original filenames and native
 versions remain unchanged. Every formal Release contains separate macOS arm64
